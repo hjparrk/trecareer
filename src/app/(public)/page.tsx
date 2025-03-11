@@ -30,7 +30,7 @@ export default async function Home() {
             </div>
             <Button
               asChild
-              className="w-fit text-sm sm:text-base font-bold hover:text-black/80 hover:bg-gradient-to-r hover:from-green-500 hover:to-pink-500"
+              className="w-fit py-6 text-sm sm:text-base font-bold hover:text-black/80 hover:bg-gradient-to-r hover:from-green-500 hover:to-pink-500"
             >
               <Link href={"/signin"}>Create My Tracker</Link>
             </Button>
