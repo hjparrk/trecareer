@@ -29,7 +29,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex flex-col flex-grow ">{children}</main>
 
       {/* Footer */}
-      <div className="py-2 bg-gray-100 text-center mt-auto">
+      <div className="py-2 text-center mt-auto">
         <h1>All rights reserved. © 2025 Harry Park </h1>
       </div>
     </div>
