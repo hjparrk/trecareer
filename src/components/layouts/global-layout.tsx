@@ -1,25 +1,18 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { signOut } from "@/actions/auth.action";
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
-export default function GlobalLayout({
+export default async function GlobalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [user, setUser] = useState<unknown>(null);
-
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
-    });
-  }, []);
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <div className="flex flex-col min-h-screen">
