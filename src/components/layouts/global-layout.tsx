@@ -29,7 +29,7 @@ export default async function GlobalLayout({
             height={0}
             className="h-10 w-10"
           />
-          <span>TRACAREER</span>
+          <span>TRECAREER</span>
         </Link>
         <div>
           {user ? (
