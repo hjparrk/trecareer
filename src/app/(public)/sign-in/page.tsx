@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function Page() {
   return (
     <div className="flex flex-col items-center justify-center flex-grow gap-10">
-      <header className="text-2xl sm:text-4xl font-semibold text-center">
+      <header className="text-3xl sm:text-4xl font-semibold text-center">
         <h1>Welcome Back!</h1>
         <h1>Please Sign In.</h1>
       </header>
