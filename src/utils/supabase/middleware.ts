@@ -39,14 +39,27 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Public Routes
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/sign-in") &&
-    !request.nextUrl.pathname.startsWith("/auth")
+    !request.nextUrl.pathname.startsWith("/auth") &&
+    request.nextUrl.pathname !== "/"
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
+    return NextResponse.redirect(url);
+  }
+
+  // Protected Routes
+  if (
+    user &&
+    !request.nextUrl.pathname.startsWith("/my-workspace") &&
+    !request.nextUrl.pathname.startsWith("/tracker")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/my-workspace";
     return NextResponse.redirect(url);
   }
 
