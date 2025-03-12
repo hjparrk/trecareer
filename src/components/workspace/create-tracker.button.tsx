@@ -38,13 +38,13 @@ export default function CreateTrackerButton() {
       setDescription("");
       setIsDialogOpen(false);
 
-      if (success) {
-        toast("Tracker has been created", {
-          description: new Date().toISOString(),
+      if (!success) {
+        toast(error, {
+          description: new Date(Date.now()).toLocaleString(),
         });
       } else {
-        toast(error || "Internal Server Error", {
-          description: new Date().toISOString(),
+        toast("Tracker has been created", {
+          description: new Date(Date.now()).toLocaleString(),
         });
       }
     });

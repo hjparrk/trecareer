@@ -21,38 +21,21 @@ export async function createTracker({
   title: string;
   description?: string;
 }): Promise<APIResponse<null>> {
-  try {
-    const supabase = await createClient();
-    const { error } = await supabase.from("trackers").insert({
-      title: title,
-      description: description,
-    });
+  const supabase = await createClient();
+  const { error } = await supabase.from("trackers").insert({
+    title: title,
+    description: description,
+  });
 
-    if (error) {
-      console.log(error);
-
-      return {
-        success: false,
-        error: error.message,
-      };
-    }
-
-    revalidatePath("/my-workspace");
-
+  if (error) {
     return {
-      success: true,
+      success: false,
+      error: error.message || "Internal Server Error",
     };
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      return {
-        success: false,
-        error: err.message || "Internal Server Error",
-      };
-    } else {
-      return {
-        success: false,
-        error: "An unexpected error occurred",
-      };
-    }
   }
+
+  revalidatePath("/my-workspace");
+  return {
+    success: true,
+  };
 }
