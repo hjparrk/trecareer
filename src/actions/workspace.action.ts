@@ -40,10 +40,17 @@ export async function createTracker({
     return {
       success: true,
     };
-  } catch (err: any) {
-    return {
-      success: false,
-      error: err.message || "An unexpected error occurred",
-    };
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return {
+        success: false,
+        error: err.message,
+      };
+    } else {
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      };
+    }
   }
 }
