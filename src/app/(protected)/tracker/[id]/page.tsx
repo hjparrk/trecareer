@@ -1,3 +1,3 @@
 export default function Page() {
-  return <div>tracker</div>;
+  return <div>Tracker</div>;
 }
