@@ -1,6 +1,5 @@
 import { getAllTrackers } from "@/actions/workspace.action";
 import TrackerItem from "./tracker-item";
-import { redirect } from "next/dist/server/api-utils";
 
 export default async function TrackerList() {
   const trackers = await getAllTrackers();
