@@ -72,7 +72,7 @@ const trackers = [
   },
 ];
 
-export function DropdownMenuDemo() {
+function DropdownMenuDemo() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
