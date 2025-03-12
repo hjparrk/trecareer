@@ -10,7 +10,6 @@ export async function getAllTrackers() {
     .from("trackers")
     .select("id, title, description, created_at, updated_at");
 
-  console.log(data);
   return data;
 }
 
