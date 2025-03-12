@@ -1,5 +1,6 @@
 import { signInWithGithub } from "@/actions/auth.action";
 import { Button } from "@/components/ui/button";
+import { Metadata } from "next";
 import Image from "next/image";
 
 function ProviderButton({
@@ -30,6 +31,11 @@ function ProviderButton({
     </Button>
   );
 }
+
+export const metadata: Metadata = {
+  title: "Sign in to Trecareer",
+  description: "Sign in to trecareer.",
+};
 
 export default function Page() {
   return (
