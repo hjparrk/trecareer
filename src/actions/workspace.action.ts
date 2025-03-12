@@ -44,7 +44,7 @@ export async function createTracker({
     if (err instanceof Error) {
       return {
         success: false,
-        error: err.message,
+        error: err.message || "Internal Server Error",
       };
     } else {
       return {
