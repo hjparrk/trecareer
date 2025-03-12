@@ -17,6 +17,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
@@ -64,6 +73,21 @@ const trackers = [
     updated_at: new Date(),
   },
 ];
+
+export function DropdownMenuDemo() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant={"link"}>...</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="not-sm:absolute not-sm:right-2">
+        <DropdownMenuItem>Edit</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>Delete</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export default function Page() {
   const router = useRouter();
@@ -117,30 +141,34 @@ export default function Page() {
       </div>
       <div className="mt-6 sm:mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-12">
         {trackers?.map((tracker) => (
-          <Card
-            key={`tracker-${tracker.id}`}
-            onClick={() => router.push(`tracker/${tracker.id}`)}
-            className="min-w-2xs max-w-sm hover:cursor-pointer hover:shadow-lg  transition-all duration-300"
-          >
-            <CardHeader>
-              <CardTitle>{tracker.title}</CardTitle>
-              <CardDescription>
-                {tracker.description ? tracker.description : <p>&nbsp;</p>}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-xs">
-              <p>
-                {tracker.created_at.toLocaleString("en-AU", {
-                  timeZone: "Australia/Sydney",
-                })}
-              </p>
-              <p>
-                {tracker.updated_at.toLocaleString("en-AU", {
-                  timeZone: "Australia/Sydney",
-                })}
-              </p>
-            </CardContent>
-          </Card>
+          <div className="relative min-w-2xs max-w-sm hover:cursor-pointer hover:shadow-lg  transition-all duration-300">
+            <div className="absolute top-2 right-2">
+              <DropdownMenuDemo />
+            </div>
+            <Card
+              key={`tracker-${tracker.id}`}
+              onClick={() => router.push(`tracker/${tracker.id}`)}
+            >
+              <CardHeader>
+                <CardTitle>{tracker.title}</CardTitle>
+                <CardDescription>
+                  {tracker.description ? tracker.description : <p>&nbsp;</p>}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-xs">
+                <p>
+                  {tracker.created_at.toLocaleString("en-AU", {
+                    timeZone: "Australia/Sydney",
+                  })}
+                </p>
+                <p>
+                  {tracker.updated_at.toLocaleString("en-AU", {
+                    timeZone: "Australia/Sydney",
+                  })}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         ))}
       </div>
     </div>

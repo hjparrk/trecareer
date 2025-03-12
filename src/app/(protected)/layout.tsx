@@ -1,13 +1,7 @@
 import { signOut } from "@/actions/auth.action";
 import { Button } from "@/components/ui/button";
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "My Workspace",
-  description: "Trecareer - My Workspace",
-};
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -37,7 +31,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Main Content */}
-      <main>{children}</main>
+      {children}
     </div>
   );
 }
