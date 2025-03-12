@@ -43,7 +43,7 @@ export default function CreateTrackerButton() {
           description: new Date().toISOString(),
         });
       } else {
-        toast(error, {
+        toast(error || "Internal Server Error", {
           description: new Date().toISOString(),
         });
       }
