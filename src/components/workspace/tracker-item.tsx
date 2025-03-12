@@ -25,12 +25,15 @@ export default function TrackerItem({ tracker }: { tracker: TrackerData }) {
       onClick={() => router.push(`/tracker/${tracker.id}`)}
       className="relative min-w-2xs max-w-sm hover:cursor-pointer hover:shadow-lg  transition-all duration-300"
     >
+      {/* Tracker Option Button */}
       <div
         onClick={(e) => e.stopPropagation()}
         className="absolute top-2 right-2"
       >
         <TrackerOptionButton />
       </div>
+
+      {/* Content */}
       <CardHeader>
         <CardTitle>{tracker.title}</CardTitle>
         <CardDescription>
