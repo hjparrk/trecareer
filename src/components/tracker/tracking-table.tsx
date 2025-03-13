@@ -14,7 +14,14 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronsUpDown,
+  MoreHorizontal,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -39,20 +46,29 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { formatDateShort } from "@/utils/format-date";
+import { formatDateFull, formatDateShort } from "@/utils/format-date";
+
+enum Remote {
+  OnSite = "On Site",
+  Hybrid = "Hybrid",
+  Remote = "Remote",
+}
 
 enum ApplicationStatus {
   NotStarted = "Not Started", // 아직 지원 준비를 시작하지 않은 상태
   InProgress = "In Progress", // 지원 준비가 진행 중인 상태
+  Withdrawed = "Withdrawed", // 지원 철회 상태
+
   Applied = "Applied", // 지원서를 제출한 상태
   Screening = "Screening", // 서류 심사 중인 상태
+
   AwaitingInterview = "Awaiting Interview", // 면접 대기 중인 상태
   InterviewScheduled = "InterviewS cheduled", // 면접 일정이 확정된 상태
   InterviewCompleted = "Interview Completed", // 면접이 완료된 상태
+
   Offered = "Offered", // 회사에서 제안을 받은 상태
   Accepted = "Accepted", // 제안을 수락한 상태
   Rejected = "Rejected", // 불합격 상태
-  Withdrawed = "Withdrawed", // 지원 철회 상태
   OnHold = "OnHold", // 보류 중인 상태
 }
 
@@ -62,8 +78,8 @@ const ApplicationStatusColor: Record<ApplicationStatusKey, string> = {
   Withdrawed: "bg-status-gray/70", // 지원 철회 상태
 
   Applied: "bg-status-blue/70", // 지원서를 제출한 상태
-
   Screening: "bg-status-yellow/70", // 서류 심사 중인 상태
+
   AwaitingInterview: "bg-status-yellow/70", // 면접 대기 중인 상태
   InterviewScheduled: "bg-status-yellow/70", // 면접 일정이 확정된 상태
   InterviewCompleted: "bg-status-yellow/70", // 면접이 완료된 상태
@@ -81,13 +97,17 @@ type ApplicationStatusKey = keyof typeof ApplicationStatus;
 type Application = {
   id: string;
   company: string;
+  location?: string;
   position: string;
-  status: ApplicationStatusKey; // label 값을 사용
-  expected_salary: number;
+  remote: Remote;
+  status: ApplicationStatusKey;
   applied_at?: string;
-  link?: string;
+  interview_at?: string;
+  expected_salary: number;
+  resume_version?: string;
   hiring_manager?: string;
   contact?: string;
+  link?: string;
 };
 
 const data: Application[] = [
@@ -95,20 +115,26 @@ const data: Application[] = [
     id: "1",
     company: "Meta",
     position: "SWE",
+    remote: Remote.Hybrid,
+    location: "Sydney, NSW",
     status: "Accepted",
+    interview_at: "2025-02-28 08:20:17.830843+00",
     expected_salary: 100_000,
   },
   {
     id: "2",
     company: "Google",
     position: "SWE II",
-    link: "https://www.google.comasdfasfasfdasdfasdfasd",
+    remote: Remote.OnSite,
+    location: "Melbourne, VIC",
     status: "Applied",
     expected_salary: 80_000,
+    link: "https://www.google.comasdfasfasfdasdfasdfasd",
   },
   {
     id: "3",
     company: "Tiktok",
+    remote: Remote.Remote,
     position: "Data Engineer",
     status: "AwaitingInterview",
     expected_salary: 10_000,
@@ -117,6 +143,8 @@ const data: Application[] = [
     id: "4",
     company: "Amazon AWS",
     position: "Cloud Engineer",
+    remote: Remote.Hybrid,
+    location: "Geelong, VIC",
     status: "Offered",
     applied_at: "2025-03-12 14:20:17.830843+00",
     expected_salary: 90_000,
@@ -125,6 +153,8 @@ const data: Application[] = [
     id: "5",
     company: "Atlassian",
     position: "Cloud Engineer II",
+    remote: Remote.Hybrid,
+    location: "Sydney, NSW",
     status: "InProgress",
     expected_salary: 130_000,
     hiring_manager: "Luke Sam",
@@ -136,19 +166,35 @@ const columns: ColumnDef<Application>[] = [
   {
     accessorKey: "company",
     header: ({ column }) => {
+      let newSortDirection;
+      switch (column.getIsSorted()) {
+        case "asc":
+          newSortDirection = true;
+          break;
+        case "desc":
+          newSortDirection = undefined;
+          break;
+        default:
+          newSortDirection = false;
+      }
+
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => column.toggleSorting(newSortDirection)}
         >
           Company
-          <ArrowUpDown />
+          {column.getIsSorted() === "desc" ? (
+            <ArrowDown />
+          ) : column.getIsSorted() === "asc" ? (
+            <ArrowUp />
+          ) : (
+            <ArrowUpDown />
+          )}
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="lowercase px-3">{row.getValue("company")}</div>
-    ),
+    cell: ({ row }) => <div className="px-3">{row.getValue("company")}</div>,
     enableHiding: false,
   },
   {
@@ -156,6 +202,18 @@ const columns: ColumnDef<Application>[] = [
     header: "Position",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("position")}</div>
+    ),
+  },
+  {
+    accessorKey: "remote",
+    header: "Remote",
+    cell: ({ row }) => <div>{row.getValue("remote")}</div>,
+  },
+  {
+    accessorKey: "location",
+    header: "Location",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("location")}</div>
     ),
   },
   {
@@ -167,12 +225,97 @@ const columns: ColumnDef<Application>[] = [
       const color = ApplicationStatusColor[statusKey];
 
       return (
-        <div className={`capitalize rounded-2xl w-fit px-2 py-1 ${color}`}>
-          {status}
+        <div className="">
+          <div className={`rounded-2xl w-fit px-2 py-1 ${color}`}>{status}</div>
         </div>
       );
     },
   },
+  {
+    accessorKey: "applied_at",
+    header: ({ column }) => {
+      let newSortDirection;
+      switch (column.getIsSorted()) {
+        case "asc":
+          newSortDirection = true;
+          break;
+        case "desc":
+          newSortDirection = undefined;
+          break;
+        default:
+          newSortDirection = false;
+      }
+
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Application Date
+          {column.getIsSorted() === "desc" ? (
+            <ArrowDown />
+          ) : column.getIsSorted() === "asc" ? (
+            <ArrowUp />
+          ) : (
+            <ArrowUpDown />
+          )}
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const appliedAt: string | null = row.getValue("applied_at");
+
+      if (appliedAt) {
+        const formatted = formatDateShort(appliedAt);
+        return <div className="px-3">{formatted}</div>;
+      }
+
+      return <div className="px-3"></div>;
+    },
+  },
+  {
+    accessorKey: "interview_at",
+    header: ({ column }) => {
+      let newSortDirection;
+      switch (column.getIsSorted()) {
+        case "asc":
+          newSortDirection = true;
+          break;
+        case "desc":
+          newSortDirection = undefined;
+          break;
+        default:
+          newSortDirection = false;
+      }
+
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(newSortDirection)}
+        >
+          Interview Date
+          {column.getIsSorted() === "desc" ? (
+            <ArrowDown />
+          ) : column.getIsSorted() === "asc" ? (
+            <ArrowUp />
+          ) : (
+            <ArrowUpDown />
+          )}
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const appliedAt: string | null = row.getValue("interview_at");
+
+      if (appliedAt) {
+        const formatted = formatDateFull(appliedAt);
+        return <div className="px-3">{formatted}</div>;
+      }
+
+      return <div className="px-3"></div>;
+    },
+  },
+
   {
     accessorKey: "expected_salary",
     header: "Exp. Salary",
@@ -190,44 +333,9 @@ const columns: ColumnDef<Application>[] = [
     },
   },
   {
-    accessorKey: "applied_at",
-    header: "Application date",
-    cell: ({ row }) => {
-      const appliedAt: string | null = row.getValue("applied_at");
-
-      if (appliedAt) {
-        const formatted = formatDateShort(appliedAt);
-        return <div>{formatted}</div>;
-      }
-
-      return <div></div>;
-    },
-  },
-  {
-    accessorKey: "link",
-    header: "Link",
-    cell: ({ row }) => {
-      const application = row.original;
-
-      return (
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger>
-              <div
-                onClick={() =>
-                  application.link &&
-                  navigator.clipboard.writeText(application.link)
-                }
-                className="max-w-3xs truncate"
-              >
-                {row.getValue("link")}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Click to copy</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    },
+    accessorKey: "resume_version",
+    header: "Resume Version",
+    cell: ({ row }) => <div>{row.getValue("resume_version")}</div>,
   },
   {
     accessorKey: "hiring_manager",
@@ -249,7 +357,7 @@ const columns: ColumnDef<Application>[] = [
                   application.contact &&
                   navigator.clipboard.writeText(application.contact)
                 }
-                className="max-w-3xs truncate"
+                className="max-w-3xs truncate hover:cursor-pointer"
               >
                 {row.getValue("contact")}
               </div>
@@ -260,7 +368,32 @@ const columns: ColumnDef<Application>[] = [
       );
     },
   },
+  {
+    accessorKey: "link",
+    header: "Link",
+    cell: ({ row }) => {
+      const application = row.original;
 
+      return (
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger>
+              <div
+                onClick={() =>
+                  application.link &&
+                  navigator.clipboard.writeText(application.link)
+                }
+                className="max-w-3xs truncate hover:cursor-pointer"
+              >
+                {row.getValue("link")}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Click to copy</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    },
+  },
   {
     id: "actions",
     enableHiding: false,
