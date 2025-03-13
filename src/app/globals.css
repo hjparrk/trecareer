@@ -43,6 +43,14 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --color-status-gray: var(--status-gray);
+  --color-status-blue: var(--status-blue);
+  --color-status-yellow: var(--status-yellow);
+  --color-status-green: var(--status-green);
+  --color-status-darkgreen: var(--status-darkgreen);
+  --color-status-rose: var(--status-rose);
+  --color-status-orange: var(--status-orange);
 }
 
 :root {
@@ -79,6 +87,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --status-gray: oklch(0.928 0.006 264.531);
+  --status-blue: oklch(0.901 0.058 230.902);
+  --status-yellow: oklch(0.945 0.129 101.54);
+  --status-green: oklch(0.925 0.084 155.995);
+  --status-darkgreen: oklch(0.871 0.15 154.449);
+  --status-rose: oklch(0.892 0.058 10.001);
+  --status-orange: oklch(0.901 0.076 70.697);
 }
 
 .dark {

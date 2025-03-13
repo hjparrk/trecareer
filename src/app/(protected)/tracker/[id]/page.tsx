@@ -1,4 +1,4 @@
-import { ApplicationsTable } from "@/components/tracker/applications-table";
+import TrackingTable from "@/components/tracker/tracking-table";
 
 export default function Page() {
   return (
@@ -6,7 +6,7 @@ export default function Page() {
       <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold">
         Applications
       </h1>
-      <ApplicationsTable />
+      <TrackingTable />
     </div>
   );
 }
