@@ -19,7 +19,6 @@ import {
   ArrowUp,
   ArrowUpDown,
   ChevronDown,
-  ChevronsUpDown,
   MoreHorizontal,
 } from "lucide-react";
 import {
@@ -249,7 +248,7 @@ const columns: ColumnDef<Application>[] = [
       return (
         <Button
           variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          onClick={() => column.toggleSorting(newSortDirection)}
         >
           Application Date
           {column.getIsSorted() === "desc" ? (
