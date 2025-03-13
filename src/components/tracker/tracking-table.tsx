@@ -39,6 +39,7 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+import { formatDateShort } from "@/utils/format-date";
 
 enum ApplicationStatus {
   NotStarted = "Not Started", // 아직 지원 준비를 시작하지 않은 상태
@@ -117,6 +118,7 @@ const data: Application[] = [
     company: "Amazon AWS",
     position: "Cloud Engineer",
     status: "Offered",
+    applied_at: "2025-03-12 14:20:17.830843+00",
     expected_salary: 90_000,
   },
   {
@@ -147,6 +149,7 @@ const columns: ColumnDef<Application>[] = [
     cell: ({ row }) => (
       <div className="lowercase px-3">{row.getValue("company")}</div>
     ),
+    enableHiding: false,
   },
   {
     accessorKey: "position",
@@ -184,6 +187,20 @@ const columns: ColumnDef<Application>[] = [
       }).format(amount);
 
       return <div>{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: "applied_at",
+    header: "Application date",
+    cell: ({ row }) => {
+      const appliedAt: string | null = row.getValue("applied_at");
+
+      if (appliedAt) {
+        const formatted = formatDateShort(appliedAt);
+        return <div>{formatted}</div>;
+      }
+
+      return <div></div>;
     },
   },
   {

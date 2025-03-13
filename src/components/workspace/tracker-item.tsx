@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import TrackerOptionButton from "./tracker-option.button";
-import { formatDate } from "@/utils/format-date";
+import { formatDateFull } from "@/utils/format-date";
 import { Database } from "@/types/database.types";
 import { useRouter } from "next/navigation";
 
@@ -41,8 +41,8 @@ export default function TrackerItem({ tracker }: { tracker: TrackerData }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="text-xs">
-        <p>Updated At {formatDate(tracker.created_at)}</p>
-        <p>Created At {formatDate(tracker.created_at)}</p>
+        <p>Updated At {formatDateFull(tracker.created_at)}</p>
+        <p>Created At {formatDateFull(tracker.created_at)}</p>
       </CardContent>
     </Card>
   );
