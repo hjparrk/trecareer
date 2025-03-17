@@ -16,7 +16,7 @@ export function AddApplicationButton() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline">Open</Button>
+        <Button variant="outline">Add Application</Button>
       </SheetTrigger>
       <SheetContent side="right" className="min-w-[375px]">
         <div className="max-w-2xl mx-auto">
