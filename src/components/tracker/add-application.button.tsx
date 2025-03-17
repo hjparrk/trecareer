@@ -23,7 +23,8 @@ export function AddApplicationButton() {
           <SheetHeader className="p-4">
             <SheetTitle>New Application</SheetTitle>
             <SheetDescription>
-              Fill details of your new application. Click add when you're done.
+              Fill details of your new application. Click add when you&apos;re
+              done.
             </SheetDescription>
           </SheetHeader>
           <div className="grid gap-4 p-4">
