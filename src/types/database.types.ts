@@ -9,6 +9,68 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      applications: {
+        Row: {
+          applied_at: string | null
+          company: string
+          contact: string | null
+          expected_salary: number | null
+          hiring_manager: string | null
+          id: string
+          interview_at: string | null
+          link: string | null
+          location: string | null
+          position: string
+          remote: Database["public"]["Enums"]["remote"] | null
+          resume_version: string | null
+          status: Database["public"]["Enums"]["application status"]
+          tracker_id: string
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string | null
+          company: string
+          contact?: string | null
+          expected_salary?: number | null
+          hiring_manager?: string | null
+          id?: string
+          interview_at?: string | null
+          link?: string | null
+          location?: string | null
+          position: string
+          remote?: Database["public"]["Enums"]["remote"] | null
+          resume_version?: string | null
+          status: Database["public"]["Enums"]["application status"]
+          tracker_id?: string
+          user_id?: string
+        }
+        Update: {
+          applied_at?: string | null
+          company?: string
+          contact?: string | null
+          expected_salary?: number | null
+          hiring_manager?: string | null
+          id?: string
+          interview_at?: string | null
+          link?: string | null
+          location?: string | null
+          position?: string
+          remote?: Database["public"]["Enums"]["remote"] | null
+          resume_version?: string | null
+          status?: Database["public"]["Enums"]["application status"]
+          tracker_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_tracker_id_fkey"
+            columns: ["tracker_id"]
+            isOneToOne: false
+            referencedRelation: "trackers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trackers: {
         Row: {
           created_at: string
@@ -44,7 +106,20 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      "application status":
+        | "NotStarted"
+        | "InProgress"
+        | "Withdrawed"
+        | "Applied"
+        | "Screening"
+        | "AwaitingInterview"
+        | "InterviewScheduled"
+        | "InterviewCompleted"
+        | "Offered"
+        | "Accepted"
+        | "Rejected"
+        | "OnHold"
+      remote: "On Site" | "Hybrid" | "Remote"
     }
     CompositeTypes: {
       [_ in never]: never
