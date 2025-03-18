@@ -89,7 +89,7 @@ export const columns: ColumnDef<Application>[] = [
 
       return (
         <Input
-          className="min-w-48 capitalize border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
+          className="min-w-48 truncate capitalize border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
           value={value ?? ""}
           onChange={(e) => setValue(e.target.value)}
           onBlur={handleBlur}
