@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { columns } from "@/components/tracker/column-def";
 import {
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   SortingState,
   useReactTable,
@@ -36,18 +35,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Application } from "@/types/application.types";
 import { AddApplicationButton } from "./add-application.button";
+import { getAllApplications } from "@/actions/tracker.action";
 
-export default function TrackingTable({ data }: { data: Application[] }) {
+export default function TrackingTable({
+  trackerId,
+  initialData,
+  initalTotalRows,
+}: {
+  trackerId: string;
+  initialData: Application[];
+  initalTotalRows: number;
+}) {
+  const [data, setApplications] = useState<Application[]>(initialData);
+  const [totalRows, setTotalRows] = useState<number>(initalTotalRows);
+  const [cache, setCache] = useState<Record<number, Application[]>>({});
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -56,17 +60,20 @@ export default function TrackingTable({ data }: { data: Application[] }) {
     pageSize: 5,
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const table = useReactTable({
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
+    manualPagination: true,
+    rowCount: totalRows,
+    pageCount: Math.ceil(totalRows / pagination.pageSize),
     state: {
       sorting,
       columnFilters,
@@ -74,6 +81,56 @@ export default function TrackingTable({ data }: { data: Application[] }) {
       pagination,
     },
   });
+
+  useEffect(() => {
+    fetchData(pagination.pageIndex);
+  }, [pagination.pageIndex]);
+
+  const fetchData = async (pageIndex: number) => {
+    if (cache[pageIndex]) {
+      setApplications(cache[pageIndex]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await getAllApplications(trackerId, pageIndex);
+      const { data, totalRows } = response;
+
+      setCache((prevCache) => ({
+        ...prevCache,
+        [pageIndex]: data,
+      }));
+      setApplications(data);
+      setTotalRows(totalRows);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onAddApplication = async (newApplications: Application[]) => {
+    setApplications((prevApplications) => {
+      const updatedApplications = [...newApplications, ...prevApplications];
+
+      // 캐시 업데이트
+      setCache((prevCache) => {
+        const updatedCache = { ...prevCache };
+        const lastPageIndex = Math.ceil(updatedApplications.length / 10) - 1;
+
+        if (updatedCache[lastPageIndex]) {
+          updatedCache[lastPageIndex] = [
+            ...updatedCache[lastPageIndex],
+            ...newApplications,
+          ];
+        }
+        return updatedCache;
+      });
+
+      return updatedApplications; // 상태 반영
+    });
+  };
 
   return (
     <div className="w-full">
@@ -116,7 +173,10 @@ export default function TrackingTable({ data }: { data: Application[] }) {
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
-          <AddApplicationButton />
+          <AddApplicationButton
+            trackerId={trackerId}
+            onAddApplication={onAddApplication}
+          />
         </div>
       </div>
 
@@ -185,31 +245,9 @@ export default function TrackingTable({ data }: { data: Application[] }) {
       {/* Table Footer */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="hidden sm:block flex-1 ml-2 text-sm text-muted-foreground">
-          {table.getFilteredRowModel().rows.length} application(s) in display.
+          total {totalRows} application(s).
         </div>
         <div className="flex items-center space-x-2 lg:space-x-8">
-          {/* Rows Per Page Section */}
-          <div className="flex items-center space-x-2">
-            <p className="text-sm font-medium">Rows per page</p>
-            <Select
-              value={`${table.getState().pagination.pageSize}`} // Default set to 5
-              onValueChange={(value) => table.setPageSize(Number(value))}
-            >
-              <SelectTrigger className="h-8 w-[70px]">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Pagination Info */}
           <div className="flex w-[100px] items-center justify-center text-sm font-medium">
             Page {table.getState().pagination.pageIndex + 1} of{" "}
@@ -217,41 +255,55 @@ export default function TrackingTable({ data }: { data: Application[] }) {
           </div>
 
           {/* Pagination Controls */}
-          <div className="flex items-center space-x-2">
+          <div className="flex justify-end space-x-2 mt-4">
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => setPagination({ ...pagination, pageIndex: 0 })}
+              disabled={isLoading || pagination.pageIndex === 0}
             >
-              <span className="sr-only">Go to first page</span>
               <ChevronsLeft />
             </Button>
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() =>
+                setPagination({
+                  ...pagination,
+                  pageIndex: Math.max(0, pagination.pageIndex - 1),
+                })
+              }
+              disabled={isLoading || pagination.pageIndex === 0}
             >
-              <span className="sr-only">Go to previous page</span>
               <ChevronLeft />
             </Button>
             <Button
               variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={() =>
+                setPagination({
+                  ...pagination,
+                  pageIndex: Math.min(
+                    table.getPageCount() - 1,
+                    pagination.pageIndex + 1
+                  ),
+                })
+              }
+              disabled={
+                isLoading || pagination.pageIndex >= table.getPageCount() - 1
+              }
             >
-              <span className="sr-only">Go to next page</span>
               <ChevronRight />
             </Button>
             <Button
               variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
+              onClick={() =>
+                setPagination({
+                  ...pagination,
+                  pageIndex: table.getPageCount() - 1,
+                })
+              }
+              disabled={
+                isLoading || pagination.pageIndex >= table.getPageCount() - 1
+              }
             >
-              <span className="sr-only">Go to last page</span>
               <ChevronsRight />
             </Button>
           </div>

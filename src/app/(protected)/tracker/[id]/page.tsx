@@ -1,6 +1,5 @@
 import { getAllApplications } from "@/actions/tracker.action";
 import TrackingTable from "@/components/tracker/tracking-table";
-import { Application } from "@/types/application.types";
 
 export default async function Page({
   params,
@@ -8,7 +7,7 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id: trackerId } = await params;
-  const applications = (await getAllApplications(trackerId)) as Application[];
+  const { data, totalRows } = await getAllApplications(trackerId);
 
   return (
     <div className="w-full max-w-6xl mx-auto p-8 sm:p-12 md:p-16 lg:p-20">
@@ -17,7 +16,11 @@ export default async function Page({
           Applications
         </h1>
       </div>
-      <TrackingTable data={applications} />
+      <TrackingTable
+        trackerId={trackerId}
+        initialData={data}
+        initalTotalRows={totalRows}
+      />
     </div>
   );
 }

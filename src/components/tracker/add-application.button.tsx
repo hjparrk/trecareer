@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { createApplication } from "@/actions/tracker.action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,10 +24,68 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Application, ApplicationStatusKey } from "@/types/application.types";
 
-export function AddApplicationButton() {
+export function AddApplicationButton({
+  trackerId,
+  onAddApplication,
+}: {
+  trackerId: string;
+  onAddApplication: (newApplications: Application[]) => void;
+}) {
+  const [formData, setFormData] = useState<{
+    trackerId: string;
+    company: string;
+    position: string;
+    status: ApplicationStatusKey;
+  }>({
+    trackerId,
+    company: "",
+    position: "",
+    status: "InProgress",
+  });
+
+  const [isPending, startTransition] = useTransition();
+  const [isOpen, setIsOpen] = useState(false); // 상태로 Sheet 열림/닫힘 관리
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleSelectChange = (field: "status", value: ApplicationStatusKey) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = () => {
+    startTransition(async () => {
+      try {
+        // 서버에 데이터 추가 요청
+        const newApplication = await createApplication(formData);
+
+        // 상위 컴포넌트로 새 데이터 전달
+        onAddApplication(newApplication);
+
+        // 폼 데이터 초기화
+        setFormData({
+          trackerId,
+          company: "",
+          position: "",
+          status: "NotStarted",
+        });
+
+        // 창 닫기
+        setIsOpen(false);
+      } catch (error) {
+        console.error("Error adding application:", error);
+      }
+    });
+  };
+
   return (
-    <Sheet>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="outline">Add Application</Button>
       </SheetTrigger>
@@ -37,6 +99,7 @@ export function AddApplicationButton() {
             </SheetDescription>
           </SheetHeader>
           <div className="grid gap-4 p-4 max-h-3/5 overflow-auto">
+            {/* Company */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="company" className="text-left relative">
                 <h1>Company</h1>
@@ -48,9 +111,12 @@ export function AddApplicationButton() {
                 id="company"
                 placeholder="Company name"
                 required
+                value={formData.company}
+                onChange={handleChange}
                 className="col-span-3"
               />
             </div>
+            {/* Position */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="position" className="text-left relative">
                 <h1>Position</h1>
@@ -60,38 +126,12 @@ export function AddApplicationButton() {
                 id="position"
                 placeholder="SWE"
                 required
+                value={formData.position}
+                onChange={handleChange}
                 className="col-span-3"
               />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="" className="text-left">
-                Remote
-              </Label>
-              <div className="col-span-3">
-                <Select>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select your work type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="OnSite">On Site</SelectItem>
-                      <SelectItem value="Hybrid">Hybrid</SelectItem>
-                      <SelectItem value="Remote">Remote</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="location" className="text-left">
-                Location
-              </Label>
-              <Input
-                id="location"
-                placeholder="Surry Hills, NSW"
-                className="col-span-3"
-              />
-            </div>
+            {/* Status */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="" className="text-left relative">
                 <h1>Status</h1>
@@ -100,7 +140,12 @@ export function AddApplicationButton() {
                 </span>
               </Label>
               <div className="col-span-3">
-                <Select required>
+                <Select
+                  required
+                  onValueChange={(value) =>
+                    handleSelectChange("status", value as ApplicationStatusKey)
+                  }
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select application status" />
                   </SelectTrigger>
@@ -132,79 +177,15 @@ export function AddApplicationButton() {
                 </Select>
               </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="applied_at" className="text-left">
-                Application Date
-              </Label>
-              <Input id="applied_at" type="date" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="interview_at" className="text-left">
-                Interview Date
-              </Label>
-              <Input
-                id="interview_at"
-                type="datetime-local"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="expected_salary" className="text-left">
-                Exp. Salary
-              </Label>
-              <Input
-                id="expected_salary"
-                type="number"
-                min={0}
-                placeholder="80000"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="resume_version" className="text-left">
-                Resume Version
-              </Label>
-              <Input
-                id="resume_version"
-                placeholder="your-resume-v1.pdf"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="hiring_manager" className="text-left">
-                Hiring Manager
-              </Label>
-              <Input
-                id="hiring_manager"
-                placeholder="John Stravakakis"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="contact" className="text-left">
-                Contact
-              </Label>
-              <Input
-                id="contact"
-                placeholder="email / mobile"
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="link" className="text-left">
-                Link
-              </Label>
-              <Input
-                id="link"
-                placeholder="www.your-job-link.com"
-                className="col-span-3"
-              />
-            </div>
           </div>
           <SheetFooter className="p-4">
-            <SheetClose asChild>
-              <Button type="submit">Add application</Button>
-            </SheetClose>
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isPending} // 로딩 중일 때 버튼 비활성화
+            >
+              {isPending ? "Adding..." : "Add Application"}
+            </Button>
           </SheetFooter>
         </div>
       </SheetContent>

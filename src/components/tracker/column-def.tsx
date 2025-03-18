@@ -292,7 +292,6 @@ export const columns: ColumnDef<Application>[] = [
               Copy contact method
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Update application</DropdownMenuItem>
             <DropdownMenuItem>Delete</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

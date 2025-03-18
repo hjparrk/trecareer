@@ -14,6 +14,7 @@ export type Database = {
           applied_at: string | null
           company: string
           contact: string | null
+          created_at: string
           expected_salary: number | null
           hiring_manager: string | null
           id: string
@@ -31,6 +32,7 @@ export type Database = {
           applied_at?: string | null
           company: string
           contact?: string | null
+          created_at?: string
           expected_salary?: number | null
           hiring_manager?: string | null
           id?: string
@@ -48,6 +50,7 @@ export type Database = {
           applied_at?: string | null
           company?: string
           contact?: string | null
+          created_at?: string
           expected_salary?: number | null
           hiring_manager?: string | null
           id?: string
