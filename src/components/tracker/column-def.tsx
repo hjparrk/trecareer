@@ -23,6 +23,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 export const columns: ColumnDef<Application>[] = [
   {
@@ -69,14 +71,31 @@ export const columns: ColumnDef<Application>[] = [
   {
     accessorKey: "remote",
     header: "Remote",
-    cell: ({ row }) => <div>{row.getValue("remote")}</div>,
+    cell: ({ row }) => {
+      return <div>{row.getValue("remote")}</div>;
+    },
   },
   {
     accessorKey: "location",
     header: "Location",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("location")}</div>
-    ),
+    cell: ({ row, column, table }) => {
+      const initialValue = row.getValue(column.id) as string;
+      const [value, setValue] = useState<string>(initialValue);
+
+      const handleBlur = () => {
+        // meta에서 updateData 호출
+        table.options.meta?.updateData(row.index, column.id, value);
+      };
+
+      return (
+        <Input
+          className="min-w-48 capitalize border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
+          value={value ?? ""}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={handleBlur}
+        />
+      );
+    },
   },
   {
     accessorKey: "status",

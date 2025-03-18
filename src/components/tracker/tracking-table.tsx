@@ -39,6 +39,12 @@ import { Application } from "@/types/application.types";
 import { AddApplicationButton } from "./add-application.button";
 import { getAllApplications } from "@/actions/tracker.action";
 
+declare module "@tanstack/react-table" {
+  interface TableMeta<TData> {
+    updateData: (rowIndex: number, columnId: string, value: unknown) => void;
+  }
+}
+
 export default function TrackingTable({
   trackerId,
   initialData,
@@ -48,7 +54,7 @@ export default function TrackingTable({
   initialData: Application[];
   initalTotalRows: number;
 }) {
-  const [data, setApplications] = useState<Application[]>(initialData);
+  const [data, setData] = useState<Application[]>(initialData);
   const [totalRows, setTotalRows] = useState<number>(initalTotalRows);
   const [cache, setCache] = useState<Record<number, Application[]>>({});
 
@@ -62,6 +68,20 @@ export default function TrackingTable({
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const updateData = (rowIndex: number, columnId: string, value: unknown) => {
+    setData((oldData) =>
+      oldData.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...row,
+            [columnId]: value,
+          };
+        }
+        return row;
+      })
+    );
+  };
+
   const table = useReactTable({
     data,
     columns,
@@ -74,6 +94,9 @@ export default function TrackingTable({
     manualPagination: true,
     rowCount: totalRows,
     pageCount: Math.ceil(totalRows / pagination.pageSize),
+    meta: {
+      updateData, // meta를 통해 전달
+    },
     state: {
       sorting,
       columnFilters,
@@ -88,7 +111,7 @@ export default function TrackingTable({
 
   const fetchData = async (pageIndex: number) => {
     if (cache[pageIndex]) {
-      setApplications(cache[pageIndex]);
+      setData(cache[pageIndex]);
       return;
     }
 
@@ -101,7 +124,7 @@ export default function TrackingTable({
         ...prevCache,
         [pageIndex]: data,
       }));
-      setApplications(data);
+      setData(data);
       setTotalRows(totalRows);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -111,7 +134,7 @@ export default function TrackingTable({
   };
 
   const onAddApplication = async (newApplications: Application[]) => {
-    setApplications((prevApplications) => {
+    setData((prevApplications) => {
       const updatedApplications = [...newApplications, ...prevApplications];
 
       // 캐시 업데이트
