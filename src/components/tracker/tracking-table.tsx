@@ -81,6 +81,26 @@ export default function TrackingTable({
         return row;
       })
     );
+
+    // 캐시 데이터도 동기화
+    setCache((prevCache) => {
+      const pageIndex = pagination.pageIndex; // 현재 페이지의 index
+      const updatedCache = { ...prevCache };
+
+      if (updatedCache[pageIndex]) {
+        updatedCache[pageIndex] = updatedCache[pageIndex].map((row, index) => {
+          if (index === rowIndex) {
+            return {
+              ...row,
+              [columnId]: value,
+            };
+          }
+          return row;
+        });
+      }
+
+      return updatedCache;
+    });
   };
 
   const table = useReactTable({
@@ -96,7 +116,7 @@ export default function TrackingTable({
     rowCount: totalRows,
     pageCount: Math.ceil(totalRows / pagination.pageSize),
     meta: {
-      updateData, // meta를 통해 전달
+      updateData,
     },
     state: {
       sorting,
@@ -107,38 +127,37 @@ export default function TrackingTable({
   });
 
   useEffect(() => {
+    const fetchData = async (pageIndex: number) => {
+      if (cache[pageIndex]) {
+        setData(cache[pageIndex]);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const response = await getAllApplications(trackerId, pageIndex);
+        const { data, totalRows } = response;
+
+        setCache((prevCache) => ({
+          ...prevCache,
+          [pageIndex]: data,
+        }));
+        setData(data);
+        setTotalRows(totalRows);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchData(pagination.pageIndex);
   }, [pagination.pageIndex]);
-
-  const fetchData = async (pageIndex: number) => {
-    if (cache[pageIndex]) {
-      setData(cache[pageIndex]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await getAllApplications(trackerId, pageIndex);
-      const { data, totalRows } = response;
-
-      setCache((prevCache) => ({
-        ...prevCache,
-        [pageIndex]: data,
-      }));
-      setData(data);
-      setTotalRows(totalRows);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const onAddApplication = async (newApplications: Application[]) => {
     setData((prevApplications) => {
       const updatedApplications = [...newApplications, ...prevApplications];
 
-      // 캐시 업데이트
       setCache((prevCache) => {
         const updatedCache = { ...prevCache };
         const lastPageIndex = Math.ceil(updatedApplications.length / 10) - 1;
@@ -152,7 +171,7 @@ export default function TrackingTable({
         return updatedCache;
       });
 
-      return updatedApplications; // 상태 반영
+      return updatedApplications;
     });
   };
 

@@ -5,16 +5,9 @@ import {
   ApplicationStatusKey,
 } from "@/types/application.types";
 import { ColumnDef } from "@tanstack/react-table";
-
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { formatDateFull, formatDateShort } from "@/utils/format-date";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,36 +16,81 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
-
-import { CellContext } from "@tanstack/react-table";
-
-function EditableCell<TData>({
-  value: initialValue,
-  row,
-  column,
+import { useEffect, useState } from "react";
+import { updateApplication } from "@/actions/tracker.action";
+import { toast } from "sonner";
+function EditableOptionalTextCell({
+  rowId,
+  trackerId,
+  columnId,
+  initialValue,
+  rowIndex,
   updateData,
 }: {
-  value: string | undefined;
-  row: CellContext<TData, unknown>["row"];
-  column: CellContext<TData, unknown>["column"];
-  updateData: (rowIndex: number, columnId: string, value: string) => void;
+  rowId: string;
+  trackerId: string;
+  columnId: string;
+  initialValue: string;
+  rowIndex: number;
+  updateData: (rowIndex: number, columnId: string, value: unknown) => void; // 상위 상태 업데이트 메소드
 }) {
-  const [value, setValue] = useState<string | undefined>(initialValue);
+  // State Management
+  const [value, setValue] = useState<string>(initialValue);
+  const [debouncedValue, setDebouncedValue] = useState<string>(initialValue);
 
-  const onBlur = () => {
-    if (value !== initialValue) {
-      updateData(row.index, column.id, value ?? "");
-    }
+  // Sync Initial Value
+  useEffect(() => {
+    setValue(initialValue);
+    setDebouncedValue(initialValue);
+  }, [initialValue, rowId, columnId]);
+
+  // Update data on debounce
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      if (debouncedValue.trim() !== initialValue.trim()) {
+        const sanitizedValue =
+          debouncedValue.trim() === "" ? null : debouncedValue.trim();
+
+        // Update DB
+        const { success, error } = await updateApplication({
+          trackerId,
+          rowId,
+          columnId,
+          value: sanitizedValue,
+        });
+
+        if (!success) {
+          // Error toast
+          toast(error, {
+            description: new Date(Date.now()).toLocaleString(),
+          });
+        } else {
+          // Update table data state on success
+          updateData(rowIndex, columnId, sanitizedValue);
+
+          toast(`${columnId} has been updated`, {
+            description: new Date(Date.now()).toLocaleString(),
+          });
+        }
+      }
+    }, 2000); // Debouncing time (2s)
+
+    return () => clearTimeout(handler); // Eliminate timer
+  }, [debouncedValue, initialValue, trackerId, rowId, columnId, updateData]);
+
+  // Input change handler
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setValue(newValue); // Update input data
+    setDebouncedValue(newValue); // Update debounced input data
   };
 
   return (
     <Input
-      className="min-w-48 truncate capitalize border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
-      value={value ?? ""}
-      onChange={(e) => setValue(e.target.value)}
-      onBlur={onBlur}
+      value={value}
+      onChange={handleChange}
+      className="min-w-48 truncate border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
     />
   );
 }
@@ -108,17 +146,19 @@ export const columns: ColumnDef<Application>[] = [
   },
   {
     accessorKey: "location",
-    header: "Location",
-    cell: ({ row, column, table }) => (
-      <EditableCell
-        value={row.getValue(column.id)}
-        row={row}
-        column={column}
-        updateData={(rowIndex, columnId, value) => {
-          table.options.meta?.updateData(rowIndex, columnId, value);
-        }}
-      />
-    ),
+    header: () => <h1 className="px-3">Location</h1>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta?.updateData!,
+      };
+
+      return <EditableOptionalTextCell {...props} />;
+    },
   },
   {
     accessorKey: "status",
@@ -241,64 +281,66 @@ export const columns: ColumnDef<Application>[] = [
   },
   {
     accessorKey: "resume_version",
-    header: "Resume Version",
-    cell: ({ row }) => <div>{row.getValue("resume_version")}</div>,
+    header: () => <h1 className="px-3">Resume Version</h1>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta?.updateData!,
+      };
+
+      return <EditableOptionalTextCell {...props} />;
+    },
   },
   {
     accessorKey: "hiring_manager",
-    header: "Hiring Manager",
-    cell: ({ row }) => <div>{row.getValue("hiring_manager")}</div>,
+    header: () => <h1 className="px-3">Hiring Manager</h1>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta?.updateData!,
+      };
+
+      return <EditableOptionalTextCell {...props} />;
+    },
   },
   {
     accessorKey: "contact",
-    header: "Contact",
-    cell: ({ row }) => {
-      const application = row.original;
+    header: () => <h1 className="px-3">Contact</h1>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta?.updateData!,
+      };
 
-      return (
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger>
-              <div
-                onClick={() =>
-                  application.contact &&
-                  navigator.clipboard.writeText(application.contact)
-                }
-                className="max-w-3xs truncate hover:cursor-pointer"
-              >
-                {row.getValue("contact")}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Click to copy</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
+      return <EditableOptionalTextCell {...props} />;
     },
   },
   {
     accessorKey: "link",
-    header: "Link",
-    cell: ({ row }) => {
-      const application = row.original;
+    header: () => <h1 className="px-3">Link</h1>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta?.updateData!,
+      };
 
-      return (
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger>
-              <div
-                onClick={() =>
-                  application.link &&
-                  navigator.clipboard.writeText(application.link)
-                }
-                className="max-w-3xs truncate hover:cursor-pointer"
-              >
-                {row.getValue("link")}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Click to copy</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
+      return <EditableOptionalTextCell {...props} />;
     },
   },
   {
@@ -319,11 +361,11 @@ export const columns: ColumnDef<Application>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() =>
-                application.link &&
-                navigator.clipboard.writeText(application.link)
+                application.contact &&
+                navigator.clipboard.writeText(application.contact)
               }
             >
-              Copy link
+              Copy contact
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() =>
@@ -331,7 +373,15 @@ export const columns: ColumnDef<Application>[] = [
                 navigator.clipboard.writeText(application.contact)
               }
             >
-              Copy contact method
+              Copy contact
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() =>
+                application.link &&
+                navigator.clipboard.writeText(application.link)
+              }
+            >
+              Copy link
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Delete</DropdownMenuItem>

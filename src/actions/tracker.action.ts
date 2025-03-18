@@ -66,3 +66,36 @@ export async function createApplication({
 
   return data as Application[];
 }
+
+export async function updateApplication({
+  trackerId,
+  rowId,
+  columnId,
+  value,
+}: {
+  trackerId: string;
+  rowId: string;
+  columnId: string;
+  value: string | null;
+}) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("applications")
+    .update({
+      [columnId]: value,
+    })
+    .eq("id", rowId)
+    .eq("tracker_id", trackerId);
+
+  if (error) {
+    return {
+      success: false,
+      error: error.message || "Internal Server Error",
+    };
+  }
+
+  return {
+    success: true,
+  };
+}
