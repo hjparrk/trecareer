@@ -154,7 +154,7 @@ export const columns: ColumnDef<Application>[] = [
         columnId: column.id,
         initialValue: row.getValue<string>(column.id) ?? "",
         rowIndex: row.index,
-        updateData: table.options.meta?.updateData!,
+        updateData: table.options.meta!.updateData!,
       };
 
       return <EditableOptionalTextCell {...props} />;
@@ -289,7 +289,7 @@ export const columns: ColumnDef<Application>[] = [
         columnId: column.id,
         initialValue: row.getValue<string>(column.id) ?? "",
         rowIndex: row.index,
-        updateData: table.options.meta?.updateData!,
+        updateData: table.options.meta!.updateData!,
       };
 
       return <EditableOptionalTextCell {...props} />;
@@ -305,7 +305,7 @@ export const columns: ColumnDef<Application>[] = [
         columnId: column.id,
         initialValue: row.getValue<string>(column.id) ?? "",
         rowIndex: row.index,
-        updateData: table.options.meta?.updateData!,
+        updateData: table.options.meta!.updateData!,
       };
 
       return <EditableOptionalTextCell {...props} />;
@@ -321,7 +321,7 @@ export const columns: ColumnDef<Application>[] = [
         columnId: column.id,
         initialValue: row.getValue<string>(column.id) ?? "",
         rowIndex: row.index,
-        updateData: table.options.meta?.updateData!,
+        updateData: table.options.meta!.updateData!,
       };
 
       return <EditableOptionalTextCell {...props} />;
@@ -337,7 +337,7 @@ export const columns: ColumnDef<Application>[] = [
         columnId: column.id,
         initialValue: row.getValue<string>(column.id) ?? "",
         rowIndex: row.index,
-        updateData: table.options.meta?.updateData!,
+        updateData: table.options.meta!.updateData!,
       };
 
       return <EditableOptionalTextCell {...props} />;
