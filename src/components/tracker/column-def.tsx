@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Application,
   ApplicationStatus,
@@ -81,6 +79,8 @@ export const columns: ColumnDef<Application>[] = [
     accessorKey: "location",
     header: "Location",
     cell: ({ row, column, table }) => {
+      "use client";
+
       const initialValue = row.getValue(column.id) as string;
       const [value, setValue] = useState<string>(initialValue);
 
