@@ -40,7 +40,7 @@ import { AddApplicationButton } from "./add-application.button";
 import { getAllApplications } from "@/actions/tracker.action";
 
 declare module "@tanstack/react-table" {
-  // @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface TableMeta<TData> {
     updateData: (rowIndex: number, columnId: string, value: unknown) => void;
   }

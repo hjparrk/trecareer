@@ -26,6 +26,36 @@ import {
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
+function EditableCell({
+  value: initialValue,
+  row,
+  column,
+  updateData,
+}: {
+  value: string;
+  row: any;
+  column: any;
+  updateData: (rowIndex: number, columnId: string, value: unknown) => void;
+}) {
+  const [value, setValue] = useState(initialValue);
+
+  const onBlur = () => {
+    // 값이 변경되었을 때만 업데이트
+    if (value !== initialValue) {
+      updateData(row.index, column.id, value);
+    }
+  };
+
+  return (
+    <Input
+      className="min-w-48 truncate capitalize border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
+      value={value ?? ""}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={onBlur}
+    />
+  );
+}
+
 export const columns: ColumnDef<Application>[] = [
   {
     accessorKey: "company",
@@ -78,26 +108,16 @@ export const columns: ColumnDef<Application>[] = [
   {
     accessorKey: "location",
     header: "Location",
-    cell: ({ row, column, table }) => {
-      "use client";
-
-      const initialValue = row.getValue(column.id) as string;
-      const [value, setValue] = useState<string>(initialValue);
-
-      const handleBlur = () => {
-        // meta에서 updateData 호출
-        table.options.meta?.updateData(row.index, column.id, value);
-      };
-
-      return (
-        <Input
-          className="min-w-48 truncate capitalize border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
-          value={value ?? ""}
-          onChange={(e) => setValue(e.target.value)}
-          onBlur={handleBlur}
-        />
-      );
-    },
+    cell: ({ row, column, table }) => (
+      <EditableCell
+        value={row.getValue(column.id)}
+        row={row}
+        column={column}
+        updateData={(rowIndex, columnId, value) => {
+          table.options.meta?.updateData(rowIndex, columnId, value);
+        }}
+      />
+    ),
   },
   {
     accessorKey: "status",
