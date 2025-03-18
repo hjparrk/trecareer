@@ -26,23 +26,24 @@ import {
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
-function EditableCell({
+import { CellContext } from "@tanstack/react-table";
+
+function EditableCell<TData>({
   value: initialValue,
   row,
   column,
   updateData,
 }: {
-  value: string;
-  row: any;
-  column: any;
-  updateData: (rowIndex: number, columnId: string, value: unknown) => void;
+  value: string | undefined;
+  row: CellContext<TData, unknown>["row"];
+  column: CellContext<TData, unknown>["column"];
+  updateData: (rowIndex: number, columnId: string, value: string) => void;
 }) {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState<string | undefined>(initialValue);
 
   const onBlur = () => {
-    // 값이 변경되었을 때만 업데이트
     if (value !== initialValue) {
-      updateData(row.index, column.id, value);
+      updateData(row.index, column.id, value ?? "");
     }
   };
 
