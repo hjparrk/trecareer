@@ -53,7 +53,7 @@ export type Application = {
   status: ApplicationStatusKey;
   applied_at?: string;
   interview_at?: string;
-  expected_salary: number;
+  expected_salary?: number;
   resume_version?: string;
   hiring_manager?: string;
   contact?: string;

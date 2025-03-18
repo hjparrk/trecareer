@@ -184,10 +184,10 @@ export default function TrackingTable({ data }: { data: Application[] }) {
 
       {/* Table Footer */}
       <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex-1 ml-2 text-sm text-muted-foreground">
+        <div className="hidden sm:block flex-1 ml-2 text-sm text-muted-foreground">
           {table.getFilteredRowModel().rows.length} application(s) in display.
         </div>
-        <div className="flex items-center space-x-6 lg:space-x-8">
+        <div className="flex items-center space-x-2 lg:space-x-8">
           {/* Rows Per Page Section */}
           <div className="flex items-center space-x-2">
             <p className="text-sm font-medium">Rows per page</p>
