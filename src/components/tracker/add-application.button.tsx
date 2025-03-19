@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useTransition } from "react";
 import { createApplication } from "@/actions/tracker.action";
 import { Button } from "@/components/ui/button";

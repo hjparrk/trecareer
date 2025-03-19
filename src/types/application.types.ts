@@ -13,7 +13,7 @@ export enum ApplicationStatus {
   Screening = "Screening", // 서류 심사 중인 상태
 
   AwaitingInterview = "Awaiting Interview", // 면접 대기 중인 상태
-  InterviewScheduled = "InterviewS cheduled", // 면접 일정이 확정된 상태
+  InterviewScheduled = "Interview Scheduled", // 면접 일정이 확정된 상태
   InterviewCompleted = "Interview Completed", // 면접이 완료된 상태
 
   Offered = "Offered", // 회사에서 제안을 받은 상태
@@ -21,6 +21,8 @@ export enum ApplicationStatus {
   Rejected = "Rejected", // 불합격 상태
   OnHold = "OnHold", // 보류 중인 상태
 }
+
+export type ApplicationStatusKey = keyof typeof ApplicationStatus;
 
 export const ApplicationStatusColor: Record<ApplicationStatusKey, string> = {
   NotStarted: "bg-status-gray/70", // 아직 지원 준비를 시작하지 않은 상태
@@ -41,8 +43,6 @@ export const ApplicationStatusColor: Record<ApplicationStatusKey, string> = {
   Offered: "bg-status-green/70", // 회사에서 제안을 받은 상태
   Accepted: "bg-status-darkgreen/70", // 제안을 수락한 상태
 };
-
-export type ApplicationStatusKey = keyof typeof ApplicationStatus;
 
 export type Application = {
   id: string;

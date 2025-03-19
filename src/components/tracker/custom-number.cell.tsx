@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { updateApplication } from "@/actions/tracker.action";
-import { Button } from "../ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export function EditableOptionalNumberCell({
   rowId,
@@ -101,10 +100,7 @@ export function EditableOptionalNumberCell({
     <Button
       variant={null}
       onClick={() => setEditing(true)} // Enter editing mode on click
-      className={cn(
-        "px-3 not-hover:truncate min-w-32 hover:bg-white hover:border hover:border-border",
-        value ? "cursor-text" : "cursor-pointer"
-      )}
+      className="px-3 not-hover:truncate min-w-32 cursor-text hover:bg-white hover:border hover:border-border"
     >
       {value === null ? (
         <span>&nbsp;</span>

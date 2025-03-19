@@ -1,7 +1,5 @@
 import {
   Application,
-  ApplicationStatus,
-  ApplicationStatusColor,
   ApplicationStatusKey,
   Remote,
 } from "@/types/application.types";
@@ -22,7 +20,7 @@ import {
   EditableDatePickerCell,
   EditableDateTimePickerCell,
 } from "./custom-date.cell";
-import { EditableRemoteCell } from "./custom-enum.cell";
+import { EditableRemoteCell, EditableStatusCell } from "./custom-enum.cell";
 
 export const columns: ColumnDef<Application>[] = [
   {
@@ -121,16 +119,17 @@ export const columns: ColumnDef<Application>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => {
-      const statusKey: ApplicationStatusKey = row.getValue("status");
-      const status = ApplicationStatus[statusKey];
-      const color = ApplicationStatusColor[statusKey];
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<ApplicationStatusKey>(column.id),
+        rowIndex: row.index,
+        updateData: table.options.meta!.updateData!,
+      };
 
-      return (
-        <div className="">
-          <div className={`rounded-2xl w-fit px-2 py-1 ${color}`}>{status}</div>
-        </div>
-      );
+      return <EditableStatusCell {...props} />;
     },
   },
   {
