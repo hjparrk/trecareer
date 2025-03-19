@@ -9,7 +9,7 @@ export async function getAllApplications(
 ): Promise<{ data: Application[]; totalRows: number }> {
   const supabase = await createClient();
 
-  const pageSize = 5;
+  const pageSize = 8;
   const from = pageIndex ? pageIndex * pageSize : 0;
   const to = from + pageSize - 1;
 

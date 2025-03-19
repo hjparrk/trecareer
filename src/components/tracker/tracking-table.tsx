@@ -64,7 +64,7 @@ export default function TrackingTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 5,
+    pageSize: 8,
   });
 
   const [isLoading, setIsLoading] = useState(false);
