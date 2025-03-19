@@ -3,6 +3,7 @@ import {
   ApplicationStatus,
   ApplicationStatusColor,
   ApplicationStatusKey,
+  Remote,
 } from "@/types/application.types";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,8 @@ import { EditableOptionalNumberCell } from "./custom-number.cell";
 import {
   EditableDatePickerCell,
   EditableDateTimePickerCell,
-} from "./custon-date.cell";
+} from "./custom-date.cell";
+import { EditableRemoteCell } from "./custom-enum.cell";
 
 export const columns: ColumnDef<Application>[] = [
   {
@@ -86,9 +88,18 @@ export const columns: ColumnDef<Application>[] = [
   },
   {
     accessorKey: "remote",
-    header: "Remote",
-    cell: ({ row }) => {
-      return <div>{row.getValue("remote")}</div>;
+    header: () => <h1 className="px-3">Remote</h1>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) as Remote,
+        rowIndex: row.index,
+        updateData: table.options.meta!.updateData!,
+      };
+
+      return <EditableRemoteCell {...props} />;
     },
   },
   {

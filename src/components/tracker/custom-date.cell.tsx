@@ -82,8 +82,9 @@ export function EditableDatePickerCell({
         <Button
           variant={null}
           className={cn(
-            "min-w-44 justify-start text-left font-normal hover:cursor-pointer hover:bg-gray-100", // Hover effect added directly to the cell
-            !date && "text-muted-foreground"
+            "w-44 justify-start text-left font-normal hover:cursor-pointer hover:bg-gray-100", // Hover effect added directly to the cell
+            !date &&
+              "text-muted-foreground hover:bg-white hover:border hover:border-border"
           )}
         >
           {date ? (
@@ -214,8 +215,9 @@ export function EditableDateTimePickerCell({
         <Button
           variant={null}
           className={cn(
-            "min-w-44 justify-start text-left font-normal hover:cursor-pointer hover:bg-gray-100", // 개별 셀에 hover 효과 적용
-            !date && "text-muted-foreground"
+            "w-56 justify-start text-left font-normal hover:cursor-pointer",
+            !date &&
+              "text-muted-foreground hover:bg-white hover:border hover:border-border"
           )}
         >
           {date ? (
@@ -278,7 +280,7 @@ export function EditableDateTimePickerCell({
                     variant={
                       date && date.getMinutes() === minute ? "default" : "ghost"
                     }
-                    className="sm:w-full shrink-0 aspect-square hover:bg-gray-100" // 개별 버튼에 hover 효과 추가
+                    className="sm:w-full shrink-0 aspect-square hover:bg-gray-100"
                     onClick={() =>
                       handleTimeChange("minute", minute.toString())
                     }

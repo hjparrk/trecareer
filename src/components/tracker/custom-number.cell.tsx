@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { updateApplication } from "@/actions/tracker.action";
+import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 export function EditableOptionalNumberCell({
   rowId,
@@ -96,14 +98,16 @@ export function EditableOptionalNumberCell({
       className="min-w-32 not-hover:truncate border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
     />
   ) : (
-    <h1
+    <Button
+      variant={null}
       onClick={() => setEditing(true)} // Enter editing mode on click
-      className={`px-3 cursor-pointer not-hover:truncate min-w-32`}
+      className={cn(
+        "px-3 not-hover:truncate min-w-32 hover:bg-white hover:border hover:border-border",
+        value ? "cursor-text" : "cursor-pointer"
+      )}
     >
       {value === null ? (
-        <span className="text-xs text-white group-hover:text-muted hover:text-black">
-          Enter Salary
-        </span>
+        <span>&nbsp;</span>
       ) : (
         new Intl.NumberFormat("en-AU", {
           style: "currency",
@@ -111,6 +115,6 @@ export function EditableOptionalNumberCell({
           maximumFractionDigits: 0,
         }).format(value)
       )}
-    </h1>
+    </Button>
   );
 }
