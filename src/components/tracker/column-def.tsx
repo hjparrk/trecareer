@@ -16,84 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
-import { updateApplication } from "@/actions/tracker.action";
-import { toast } from "sonner";
-function EditableOptionalTextCell({
-  rowId,
-  trackerId,
-  columnId,
-  initialValue,
-  rowIndex,
-  updateData,
-}: {
-  rowId: string;
-  trackerId: string;
-  columnId: string;
-  initialValue: string;
-  rowIndex: number;
-  updateData: (rowIndex: number, columnId: string, value: unknown) => void; // 상위 상태 업데이트 메소드
-}) {
-  // State Management
-  const [value, setValue] = useState<string>(initialValue);
-  const [debouncedValue, setDebouncedValue] = useState<string>(initialValue);
-
-  // Sync Initial Value
-  useEffect(() => {
-    setValue(initialValue);
-    setDebouncedValue(initialValue);
-  }, [initialValue, rowId, columnId]);
-
-  // Update data on debounce
-  useEffect(() => {
-    const handler = setTimeout(async () => {
-      if (debouncedValue.trim() !== initialValue.trim()) {
-        const sanitizedValue =
-          debouncedValue.trim() === "" ? null : debouncedValue.trim();
-
-        // Update DB
-        const { success, error } = await updateApplication({
-          trackerId,
-          rowId,
-          columnId,
-          value: sanitizedValue,
-        });
-
-        if (!success) {
-          // Error toast
-          toast(error, {
-            description: new Date(Date.now()).toLocaleString(),
-          });
-        } else {
-          // Update table data state on success
-          updateData(rowIndex, columnId, sanitizedValue);
-
-          toast(`${columnId} has been updated`, {
-            description: new Date(Date.now()).toLocaleString(),
-          });
-        }
-      }
-    }, 2000); // Debouncing time (2s)
-
-    return () => clearTimeout(handler); // Eliminate timer
-  }, [debouncedValue, initialValue, trackerId, rowId, columnId, updateData]);
-
-  // Input change handler
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setValue(newValue); // Update input data
-    setDebouncedValue(newValue); // Update debounced input data
-  };
-
-  return (
-    <Input
-      value={value}
-      onChange={handleChange}
-      className="min-w-48 truncate border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
-    />
-  );
-}
+import { EditableOptionalTextCell, EditableTextCell } from "./custom-text.cell";
 
 export const columns: ColumnDef<Application>[] = [
   {
@@ -127,15 +50,35 @@ export const columns: ColumnDef<Application>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="px-3">{row.getValue("company")}</div>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta!.updateData!,
+      };
+
+      return <EditableTextCell {...props} />;
+    },
     enableHiding: false,
   },
   {
     accessorKey: "position",
-    header: "Position",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("position")}</div>
-    ),
+    header: () => <h1 className="px-3">Position</h1>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta!.updateData!,
+      };
+
+      return <EditableTextCell {...props} />;
+    },
   },
   {
     accessorKey: "remote",
@@ -359,14 +302,6 @@ export const columns: ColumnDef<Application>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() =>
-                application.contact &&
-                navigator.clipboard.writeText(application.contact)
-              }
-            >
-              Copy contact
-            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() =>
                 application.contact &&

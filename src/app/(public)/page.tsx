@@ -41,8 +41,8 @@ export default async function Home() {
             <Image
               src={"/hero-img.png"}
               alt=""
-              width={838}
-              height={688}
+              width={2092}
+              height={1570}
               className="object-contain w-full"
             />
           </section>
