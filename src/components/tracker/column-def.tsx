@@ -7,7 +7,6 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { formatDateFull, formatDateShort } from "@/utils/format-date";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +17,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { EditableOptionalTextCell, EditableTextCell } from "./custom-text.cell";
 import { EditableOptionalNumberCell } from "./custom-number.cell";
+import {
+  EditableDatePickerCell,
+  EditableDateTimePickerCell,
+} from "./custon-date.cell";
 
 export const columns: ColumnDef<Application>[] = [
   {
@@ -150,15 +153,17 @@ export const columns: ColumnDef<Application>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => {
-      const appliedAt: string | null = row.getValue("applied_at");
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta!.updateData!,
+      };
 
-      if (appliedAt) {
-        const formatted = formatDateShort(appliedAt);
-        return <div className="px-3">{formatted}</div>;
-      }
-
-      return <div className="px-3"></div>;
+      return <EditableDatePickerCell {...props} />;
     },
   },
   {
@@ -192,15 +197,17 @@ export const columns: ColumnDef<Application>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => {
-      const appliedAt: string | null = row.getValue("interview_at");
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id) ?? "",
+        rowIndex: row.index,
+        updateData: table.options.meta!.updateData!,
+      };
 
-      if (appliedAt) {
-        const formatted = formatDateFull(appliedAt);
-        return <div className="px-3">{formatted}</div>;
-      }
-
-      return <div className="px-3"></div>;
+      return <EditableDateTimePickerCell {...props} />;
     },
   },
 
