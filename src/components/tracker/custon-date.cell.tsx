@@ -61,7 +61,7 @@ export function EditableDatePickerCell({
           });
         }
       }
-    }, 1000); // Debounce API call by 1 seconds
+    }, 1500); // Debounce API call by 1 seconds
 
     return () => clearTimeout(handler);
   }, [debouncedValue, initialValue, trackerId, rowId, columnId, updateData]);
@@ -170,7 +170,7 @@ export function EditableDateTimePickerCell({
           });
         }
       }
-    }, 2000); // 2-second debounce
+    }, 300); // 3-second debounce
 
     return () => clearTimeout(handler);
   }, [debouncedValue, initialValue, trackerId, rowId, columnId, updateData]);
