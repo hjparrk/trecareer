@@ -76,7 +76,7 @@ export async function updateApplication({
   trackerId: string;
   rowId: string;
   columnId: string;
-  value: string | null;
+  value: string | number | null;
 }) {
   const supabase = await createClient();
 

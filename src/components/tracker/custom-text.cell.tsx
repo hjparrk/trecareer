@@ -73,7 +73,7 @@ export function EditableOptionalTextCell({
     <Input
       value={value}
       onChange={handleChange}
-      className="min-w-48 truncate border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
+      className="min-w-48 not-hover:truncate border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
     />
   );
 }
@@ -151,7 +151,7 @@ export function EditableTextCell({
       <Input
         value={value}
         onChange={handleChange}
-        className="min-w-48 placeholder:text-red-700 placeholder:font-semibold placeholder:capitalize truncate border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
+        className="min-w-40 placeholder:text-red-700 placeholder:font-semibold placeholder:capitalize not-hover:truncate  border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
         placeholder={errorMessage ?? errorMessage}
       />
     </div>

@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EditableOptionalTextCell, EditableTextCell } from "./custom-text.cell";
+import { EditableOptionalNumberCell } from "./custom-number.cell";
 
 export const columns: ColumnDef<Application>[] = [
   {
@@ -205,21 +206,20 @@ export const columns: ColumnDef<Application>[] = [
 
   {
     accessorKey: "expected_salary",
-    header: "Exp. Salary",
-    cell: ({ row }) => {
-      const amount = parseInt(row.getValue("expected_salary"));
-      if (amount) {
-        // Format the amount as a dollar amount
-        const formatted = new Intl.NumberFormat("en-AU", {
-          style: "currency",
-          currency: "AUD",
-          maximumFractionDigits: 0,
-        }).format(amount);
+    header: () => <h1 className="px-3">Exp. Salary</h1>,
+    cell: ({ row, column, table }) => {
+      const props = {
+        rowId: row.original.id,
+        trackerId: row.original.tracker_id,
+        columnId: column.id,
+        initialValue: row.getValue<string>(column.id)
+          ? Number(row.getValue<string>(column.id))
+          : null,
+        rowIndex: row.index,
+        updateData: table.options.meta!.updateData!,
+      };
 
-        return <div>{formatted}</div>;
-      }
-
-      return <div></div>;
+      return <EditableOptionalNumberCell {...props} />;
     },
   },
   {

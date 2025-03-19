@@ -14,43 +14,41 @@ export function EditableOptionalNumberCell({
   rowId: string;
   trackerId: string;
   columnId: string;
-  initialValue: string;
+  initialValue: number | null; // Allow null as initial value
   rowIndex: number;
   updateData: (rowIndex: number, columnId: string, value: unknown) => void;
 }) {
   // State Management
-  const [value, setValue] = useState<string>(initialValue);
-  const [debouncedValue, setDebouncedValue] = useState<string>(initialValue);
+  const [value, setValue] = useState<number | null>(initialValue); // Allow null
+  const [debouncedValue, setDebouncedValue] = useState<number | null>(
+    initialValue
+  );
+  const [editing, setEditing] = useState(false); // Manage edit mode
 
   // Sync Initial Value
   useEffect(() => {
-    setValue(initialValue);
+    setValue(initialValue); // Directly sync null or number
     setDebouncedValue(initialValue);
   }, [initialValue, rowId, columnId]);
 
   // Update data on debounce
   useEffect(() => {
     const handler = setTimeout(async () => {
-      if (debouncedValue.trim() !== initialValue.trim()) {
-        const sanitizedValue =
-          debouncedValue.trim() === "" ? null : debouncedValue.trim();
-
+      if (debouncedValue !== initialValue) {
         // Update DB
         const { success, error } = await updateApplication({
           trackerId,
           rowId,
           columnId,
-          value: sanitizedValue,
+          value: debouncedValue,
         });
 
         if (!success) {
-          // Error toast
           toast(error, {
             description: new Date(Date.now()).toLocaleString(),
           });
         } else {
-          // Update table data state on success
-          updateData(rowIndex, columnId, sanitizedValue);
+          updateData(rowIndex, columnId, debouncedValue);
 
           toast(`${columnId} has been updated`, {
             description: new Date(Date.now()).toLocaleString(),
@@ -59,21 +57,60 @@ export function EditableOptionalNumberCell({
       }
     }, 2000); // Debouncing time (2s)
 
-    return () => clearTimeout(handler); // Eliminate timer
+    return () => clearTimeout(handler);
   }, [debouncedValue, initialValue, trackerId, rowId, columnId, updateData]);
 
   // Input change handler
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    setValue(newValue); // Update input data
-    setDebouncedValue(newValue); // Update debounced input data
+    if (newValue === "") {
+      setValue(null); // Set to null if empty
+      setDebouncedValue(null);
+    } else if (!isNaN(Number(newValue))) {
+      setValue(Number(newValue)); // Set valid number
+      setDebouncedValue(Number(newValue));
+    }
   };
 
-  return (
+  // Handle blur (exit editing mode)
+  const handleBlur = () => setEditing(false);
+
+  // Handle Enter key to stop editing
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      setEditing(false);
+    }
+  };
+
+  return editing ? (
     <Input
-      value={value}
+      type="number"
+      min={0}
+      max={2147483647}
+      step={500}
+      value={value === null ? "" : value}
       onChange={handleChange}
-      className="min-w-48 truncate border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
+      onBlur={handleBlur} // Exit editing mode on blur
+      onKeyDown={handleKeyDown} // Exit editing mode on Enter key
+      autoFocus
+      className="min-w-32 not-hover:truncate border-transparent bg-transparent shadow-none hover:border-gray-300 hover:bg-white"
     />
+  ) : (
+    <h1
+      onClick={() => setEditing(true)} // Enter editing mode on click
+      className={`px-3 cursor-pointer not-hover:truncate min-w-32`}
+    >
+      {value === null ? (
+        <span className="text-xs text-white group-hover:text-muted hover:text-black">
+          Enter Salary
+        </span>
+      ) : (
+        new Intl.NumberFormat("en-AU", {
+          style: "currency",
+          currency: "AUD",
+          maximumFractionDigits: 0,
+        }).format(value)
+      )}
+    </h1>
   );
 }
