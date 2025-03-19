@@ -118,7 +118,7 @@ export const columns: ColumnDef<Application>[] = [
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: () => <h1 className="px-3">Status</h1>,
     cell: ({ row, column, table }) => {
       const props = {
         rowId: row.original.id,

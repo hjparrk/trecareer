@@ -217,7 +217,7 @@ export function EditableStatusCell({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-52 bg-white group-hover:bg-muted shadow-none hover:cursor-pointer font-normal justify-between ring-0 border-0 focus-visible:ring-offset-0 focus-visible:ring-0"
+          className="bg-white group-hover:bg-muted shadow-none hover:cursor-pointer font-normal justify-start ring-0 border-0 focus-visible:ring-offset-0 focus-visible:ring-0"
         >
           <h1
             className={`rounded-2xl w-fit px-2 py-1 ${ApplicationStatusColor[value]}`}
